@@ -15,8 +15,26 @@ router.post(
   ),
   AcademicSemesterController.createAcademicSemester,
 );
-router.get('/', AcademicSemesterController.getAllAcademicSemester);
-router.get('/:id', AcademicSemesterController.getSingleAcademicSemester);
+router.get(
+  '/',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
+  AcademicSemesterController.getAllAcademicSemester,
+);
+router.get(
+  '/:id',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
+  AcademicSemesterController.getSingleAcademicSemester,
+);
 router.patch(
   '/:id',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),

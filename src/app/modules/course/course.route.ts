@@ -16,7 +16,7 @@ router.post(
 
 router.get(
   '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.faculty, USER_ROLE.student),
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.faculty, USER_ROLE.student),
   CourseControllers.getSingleCourse,
 );
 
@@ -36,6 +36,12 @@ router.put(
   CourseControllers.assignFacultiesWithCourse,
 );
 
+router.get(
+  '/:courseId/get-faculties',
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.faculty, USER_ROLE.student),
+  CourseControllers.getFacultiesWithCourse,
+);
+
 router.delete(
   '/:courseId/remove-faculties',
   auth(USER_ROLE.admin, USER_ROLE.superAdmin),
@@ -43,6 +49,15 @@ router.delete(
   CourseControllers.removeFacultiesFromCourse,
 );
 
-router.get('/', CourseControllers.getAllCourses);
+router.get(
+  '/',
+  auth(
+    USER_ROLE.admin,
+    USER_ROLE.superAdmin,
+    USER_ROLE.student,
+    USER_ROLE.faculty,
+  ),
+  CourseControllers.getAllCourses,
+);
 
 export const CourseRoutes = router;

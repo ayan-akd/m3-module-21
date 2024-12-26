@@ -9,6 +9,7 @@ import { OfferedCourse } from './OfferedCourse.model';
 import { hasTimeConflict } from './OfferedCourse.utils';
 import { Course } from '../course/course.model';
 import { Faculty } from '../faculty/faculty.model';
+import { Student } from '../student/student.model';
 
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   const {
@@ -139,6 +140,55 @@ const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
     .fields();
 
   const result = await offeredCourseQuery.modelQuery;
+  const meta = await offeredCourseQuery.countTotalDocuments();
+  return {
+    meta,
+    result,
+  };
+};
+
+const getMyOfferedCoursesFromDB = async (userId: string) => {
+  const student  = await Student.findOne({id:userId});
+  if(!student){
+    throw new AppError(404, 'Student not found');
+  }
+  const currentOngoingSemesterRegistration = await SemesterRegistration.findOne({
+    status: 'ONGOING',
+  });
+  if (!currentOngoingSemesterRegistration) {
+    throw new AppError(404, 'No ongoing semester registration found');
+  }
+
+  const result = await OfferedCourse.aggregate([
+    {
+      $match: {
+        semesterRegistration: currentOngoingSemesterRegistration._id,
+        academicFaculty: student.academicFaculty,
+        academicDepartment: student.academicDepartment,
+      },
+    },
+    {
+      $lookup: {
+        from: 'courses',
+        localField: 'course',
+        foreignField: '_id',
+        as: 'course',
+      },
+    },
+    {
+      $unwind: '$course',
+    },
+    {
+      $project: {
+        course: 1,
+        faculty: 1,
+        semesterRegistration: 1,
+        courseData: {
+          name: 1,
+        },
+      },
+    },
+  ]);
   return result;
 };
 
@@ -179,7 +229,6 @@ const updateOfferedCourseIntoDB = async (
 
   const semesterRegistration = isOfferedCourseExists.semesterRegistration;
   // get the schedules of the faculties
-
 
   // Checking the status of the semester registration
   const semesterRegistrationStatus =
@@ -253,4 +302,5 @@ export const OfferedCourseServices = {
   getSingleOfferedCourseFromDB,
   deleteOfferedCourseFromDB,
   updateOfferedCourseIntoDB,
+  getMyOfferedCoursesFromDB
 };
