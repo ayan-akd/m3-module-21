@@ -2,7 +2,6 @@ import { Schema, model } from 'mongoose';
 import { userNameSchema } from '../student/student.model';
 import { FacultyModel, TFaculty } from './faculty.interface';
 
-
 const facultySchema = new Schema<TFaculty, FacultyModel>(
   {
     id: {
@@ -58,10 +57,16 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
       type: String,
       required: [true, 'Permanent address is required'],
     },
-    profileImg: { type: String },
+    profileImg: { type: String, default: '' },
     academicDepartment: {
       type: Schema.Types.ObjectId,
+      required: [true, 'Academic department is required'],
       ref: 'AcademicDepartment',
+    },
+    academicFaculty: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'Academic faculty is required'],
+      ref: 'AcademicFaculty',
     },
     isDeleted: {
       type: Boolean,

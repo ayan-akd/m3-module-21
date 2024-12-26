@@ -19,6 +19,7 @@ export type TFaculty = {
   profileImg?: string;
   isDeleted: boolean;
   academicDepartment: Types.ObjectId;
+  academicFaculty: Types.ObjectId;
 };
 
 
